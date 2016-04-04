@@ -69,7 +69,6 @@ def main(input_path,output_path,FBuser):
 
 if __name__ == '__main__':
     if len(sys.argv) == 4:
-        # FBname = input("input your Facebook name:\nex:朱瑤章")
         main(sys.argv[1],sys.argv[2],sys.argv[3])
     else :
         print('usage:\tFBhtml2dict.py <input_file> <output_file> <FB_name>')
