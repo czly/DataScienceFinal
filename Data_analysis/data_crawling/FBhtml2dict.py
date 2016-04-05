@@ -43,18 +43,19 @@ def main(input_path,output_path,FBuser):
     #=====jieba word segmentation==========================
     for threadName in chatDict.keys():
         segDict = {}
-        msgstrs = ""
+        segListAll = []
         for msg in chatDict[threadName]['msgs']:
+            if msg[2]!=None:
+                segListTmp = jieba.cut(msg[2], cut_all=False,HMM=True)
+            try:
+                msg[2] = [i for i in segListTmp]
+            except:
+                msg[2] = []
             if msg[1] == FBuser:
-                try:
-                    msgstrs += ','+msg[2]
-                except:
-                    pass
-        #=====segment==========================
-        segList = jieba.cut(msgstrs, cut_all=False,HMM=True)
+                segListAll.extend(msg[2])
         #======================================
         #=====build dict=======================
-        for term in segList:
+        for term in segListAll:
             if term not in segDict:
                 segDict[term] = 1
             else:
