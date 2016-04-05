@@ -8,24 +8,27 @@ def saveFile(usrname):
     savepath = usrname + "_text/"
     if not os.path.exists("./" + usrname + "_text/"):
         os.mkdir(usrname + "_text")
+        print("mkdir: ./" + usrname + "_text/ ...")
     file_list = []
     f1 = open(usrname + "_msgDict.txt", "r")
-    s1 = ""
-    for line in f1:
-        s1 += line
-    dictYao = eval(s1) #turn str -> dict object
+    content = f1.read()
+    dictUsr = eval(content) #turn str -> dict object
 
-    for item in dictYao:
+    print("saving files into ./" + usrname + "_text/ ...")
+    file_list.append(savepath + "group")
+    for item in dictUsr:
         filename = ""
-        if len(savepath + str(item)) > 20:
+        chatname = savepath + str(item)
+        if chatname.count(",", 0, len(chatname)) > 1:
             filename = savepath + "group"
         else:
-            filename = savepath + str(item)
-
-        file_list.append(filename)
-        file_out = open(filename, "w")
-        for key in dictYao[item]['segm']:
-            for i in range(int(dictYao[item]['segm'][key])):
+            filename = chatname
+            file_list.append(filename)
+        
+        print("key: " + str(item) + ", saving " + filename)
+        file_out = open(filename, "a")
+        for key in dictUsr[item]['segm']:
+            for i in range(int(dictUsr[item]['segm'][key])):
                 file_out.write(str(key) + ' ')
         file_out.close()
 
