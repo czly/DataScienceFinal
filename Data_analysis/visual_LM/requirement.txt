@@ -1,1 +1,4 @@
 # put your requirements here
+
+# toolkit for nature language processing
+nltk==3.2
