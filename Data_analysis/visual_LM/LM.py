@@ -1,6 +1,7 @@
 from __future__ import division
 from nltk.util import everygrams
 from collections import Counter
+import numpy as np
 
 
 def fb_file_to_dict(filename):
@@ -102,6 +103,29 @@ def similar_chat(all_LMs, target_name, you, show_top=10, alter=None):
 
     return sorted_LM
 
+def export_similarity(all_LMs):
+    ID_map = all_LMs.keys()
+    similarity = np.zeros([len(ID_map), len(ID_map)])
+    for y, key1 in enumerate(ID_map):
+        for x, key2 in enumerate(ID_map):
+            similarity[y][x] = inner_product(all_LMs[key1], all_LMs[key2])
+
+    return similarity, ID_map
+
+def export_dissimilarity(all_LMs):
+    ID_map = all_LMs.keys()
+    similarity = np.zeros([len(ID_map), len(ID_map)])
+    for y, key1 in enumerate(ID_map):
+        for x, key2 in enumerate(ID_map):
+            similarity[y][x] = inner_product(all_LMs[key1], all_LMs[key2])
+
+    M = np.max(similarity)
+    dissimilarity = np.zeros([len(ID_map), len(ID_map)]) + M
+    for y, key1 in enumerate(ID_map):
+        for x, key2 in enumerate(ID_map):
+            dissimilarity[y][x] -= similarity[y][x]
+
+    return dissimilarity, ID_map
 
 def preparation(filename, max_len=4):
     fb_dict = fb_file_to_dict(filename)
