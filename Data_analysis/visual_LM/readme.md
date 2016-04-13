@@ -16,7 +16,7 @@ The result is actually quite good. the query chatrooms "_Jeff King_" is a person
 The nearest neighbors method also discover good friends of mine:
 
 <p align="center">
-  <img src="figure/Picture2.png" width="500"/>
+  <img src="figure/Picture2.png" width="750"/>
 </p>
 
 
@@ -47,7 +47,7 @@ However, we can still see there are three points standing out as I've circuled o
 We check and see what chatrooms those three points are:
 
 <p align="center">
-  <img src="figure/Picture3.png" width="500"/>
+  <img src="figure/Picture3.png" width="750"/>
 </p>
 
 Turns out those chatrooms are all about a project ran in our lab. And _Sebastian Agethen_ is the project leader of that project.
