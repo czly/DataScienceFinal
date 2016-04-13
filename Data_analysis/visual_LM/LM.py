@@ -20,22 +20,24 @@ def build_one_chat_LM(fb_dict, max_len=3):
         input: one chat room
         output: LM of that chatroom
     """
+    final_list = []
     for line in fb_dict['msgs']:
         line = line[2]
-        grams_this_line = list(everygrams(line,
-                                          max_len=max_len,
-                                          pad_left=True,
-                                          pad_right=True,
-                                          left_pad_symbol='<s>',
-                                          right_pad_symbol='<\s>'))
+        final_list += list(everygrams(line,
+                                      max_len=max_len,
+                                      pad_left=True,
+                                      pad_right=True,
+                                      left_pad_symbol='<s>',
+                                      right_pad_symbol='<\s>'))
 
-        Counter_LM = Counter(grams_this_line)
-        total_count = sum(Counter_LM.values())
-        total_count = float(total_count)
-        for key in Counter_LM:
-            Counter_LM[key] /= total_count
+    Counter_LM = Counter(final_list)
+    
+    total_count = sum(Counter_LM.values())
+    total_count = float(total_count)
+    for key in Counter_LM:
+        Counter_LM[key] /= total_count
 
-        return Counter_LM
+    return Counter_LM
 
 
 def build_all_chat_LM(fb_dict, max_len=3):
@@ -70,6 +72,33 @@ def build_vocab(all_LMs):
 #   for chatname, LM in all_LMs.iteritems():
 #       tmp = np.zeros(vocab_size)
 
+def internal_variance(v1, v2):
+    ret = 0.0
+    for word, value in v1.iteritems():
+        if word in v2:
+            ret += (value - v2[word])**2
+        else:
+            ret += value**2
+
+    for word, value in v2.iteritems():
+        if word not in v1:
+            ret += value**2
+
+    return ret
+
+def internal_absolute_distance(v1, v2):
+    ret = 0.0
+    for word, value in v1.iteritems():
+        if word in v2:
+            ret += abs(value - v2[word])
+        else:
+            ret += value
+
+    for word, value in v2.iteritems():
+        if word not in v1:
+            ret += value
+
+    return ret
 
 def inner_product(v1, v2):
     ret = 0.0
@@ -95,40 +124,43 @@ def similar_chat(all_LMs, target_name, you, show_top=10, alter=None):
     for chatname, LM in all_LMs.iteritems():
         if chatname == base:
             continue
-        similarity[chatname] = inner_product(base_LM, LM)
+        similarity[chatname] = internal_absolute_distance(base_LM, LM)
 
-    sorted_LM = sorted(similarity, key=similarity.get, reverse=True)
+    sorted_LM = sorted(similarity, key=similarity.get, reverse=False)
     for i in xrange(show_top):
         print sorted_LM[i]
 
     return sorted_LM
 
-def export_similarity(all_LMs):
-    ID_map = all_LMs.keys()
-    similarity = np.zeros([len(ID_map), len(ID_map)])
-    for y, key1 in enumerate(ID_map):
-        for x, key2 in enumerate(ID_map):
-            similarity[y][x] = inner_product(all_LMs[key1], all_LMs[key2])
-
-    return similarity, ID_map
+#def export_similarity(all_LMs):
+#    ID_map = all_LMs.keys()
+#    similarity = np.zeros([len(ID_map), len(ID_map)])
+#    for y, key1 in enumerate(ID_map):
+#        for x, key2 in enumerate(ID_map):
+#            similarity[y][x] = inner_product(all_LMs[key1], all_LMs[key2])
+#
+#    return similarity, ID_map
 
 def export_dissimilarity(all_LMs):
     ID_map = all_LMs.keys()
-    similarity = np.zeros([len(ID_map), len(ID_map)])
+    dissimilarity = np.zeros([len(ID_map), len(ID_map)])
     for y, key1 in enumerate(ID_map):
         for x, key2 in enumerate(ID_map):
-            similarity[y][x] = inner_product(all_LMs[key1], all_LMs[key2])
-
-    M = np.max(similarity)
-    dissimilarity = np.zeros([len(ID_map), len(ID_map)]) + M
-    for y, key1 in enumerate(ID_map):
-        for x, key2 in enumerate(ID_map):
-            dissimilarity[y][x] -= similarity[y][x]
+            dissimilarity[y][x] = internal_absolute_distance(all_LMs[key1], all_LMs[key2])
 
     return dissimilarity, ID_map
 
-def preparation(filename, max_len=4):
+def filter_outlier(fb_dict, threshold=1000):
+    new_dict = {}
+    for d in fb_dict:
+        if len(fb_dict[d]['msgs']) < threshold:
+            continue
+        new_dict[d] = fb_dict[d]
+    return new_dict
+
+def preparation(filename, max_len=2):
     fb_dict = fb_file_to_dict(filename)
+    fb_dict = filter_outlier(fb_dict, threshold=200)
     all_LMs = build_all_chat_LM(fb_dict, max_len=max_len)
     # vocab = build_vocab(all_LMs)
     return all_LMs
