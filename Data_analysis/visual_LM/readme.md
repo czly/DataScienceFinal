@@ -1,8 +1,6 @@
 # visualize language model
 You may refer to LM_usage.ipynb for running a quick demo.
 
-[Notice] currently, the LM.py only support inner-product distance
-
 ## Analysis
 After we built the language models, we can try to do some analysis on top of the language models. 
 However, the language models space is very sparse, which make distance metric like L2 (the most commonly seen one) meaningless. To enable analysis on language models, we use the inner_product similarity metric. 
