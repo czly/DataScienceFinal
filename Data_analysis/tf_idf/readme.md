@@ -12,15 +12,23 @@ The original data for tf-idf keyword extraction is generated from "data crawling
 
 ##Usage
 1. DictToFile.py
+  
   `python DictToFile.py <user name>`
+  
   for example
+  
   `python DictToFile.py YAO`
-  The data must be stored in __<user name>MsgDict.txt__.
+  
+  The data must be stored in `<user name>MsgDict.txt`.
 
 2. TFIDF.py
+  
   `python TFIDF.py <dir path> <result dir path>`
+  
   for example
+  
   `python TFIDF.py ./CHL_text/ ./CHL_tfidf/`
+  
   The `<dir path>` is the path to the directory created by DictToFile.py.
 
 ##Result
