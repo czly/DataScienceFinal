@@ -1,1 +1,3 @@
-# put your requirements here
+lxml
+requests
+jieba
