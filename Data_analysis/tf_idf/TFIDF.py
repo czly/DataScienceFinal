@@ -17,12 +17,18 @@ def getFileList(path):
 
 def tfidf(filelist, path, outpath):
     corpus = []
+    chatlist = []
+    chatlen = []
     for ff in filelist:
         filename = path + ff
         file_in = open(filename, 'r')
         content = file_in.read()
         file_in.close()
-        corpus.append(content)
+        content_list = content.split('\n', 2)
+        if len(content_list) > 2:
+            chatlist.append(content_list[0])
+            chatlen.append(content_list[1])
+            corpus.append(content_list[2])
 
     vectorizer = CountVectorizer()
     transformer = TfidfTransformer()
@@ -34,17 +40,20 @@ def tfidf(filelist, path, outpath):
     tfidfDict = {}
     tmpDict = {}
     for chat in range(len(file_list)):
-        chatname = str(file_list[chat])
+        chatname = str(chatlist[chat])
         #print("File:" + chatname)
-        tfidfDict[chatname] = []
+        tfidfDict[chatname] = {}
+        tfidfDict[chatname]['len'] = []
+        tfidfDict[chatname]['list'] = []
         tmpDict = {}
         for words in range(len(word)):
             if weight[chat][words] > 0:
                 #print(word[words] + ":" + str(weight[chat][words]))
                 tmpDict[word[words]] = weight[chat][words]
         sorted_list = sorted(tmpDict.items(), key=itemgetter(1), reverse=True)
+        tfidfDict[chatname]['len'] = chatlen[chat]
         for item in sorted_list:
-            tfidfDict[chatname].append(list(item))
+            tfidfDict[chatname]['list'].append(list(item))
 
     if not os.path.exists(outpath):
         os.mkdir(outpath)
@@ -55,9 +64,9 @@ def tfidf(filelist, path, outpath):
 
     file_out = open(outpath + "tfidf_formatted.txt", "w")
     for item in tfidfDict:
-        file_out.write(str(item) + '\n')
-        for i in range(len(tfidfDict[item])):
-            file_out.write(str(tfidfDict[item][i]) + '\n')
+        file_out.write(str(item) + " " + str(tfidfDict[item]['len']) + '\n')
+        for i in range(len(tfidfDict[item]['list'])):
+            file_out.write(str(tfidfDict[item]['list'][i]) + '\n')
     file_out.close()
 
 if __name__ == '__main__':

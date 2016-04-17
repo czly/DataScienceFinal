@@ -15,22 +15,20 @@ def saveFile(usrname):
     dictUsr = eval(content) #turn str -> dict object
 
     print("saving files into ./" + usrname + "_text/ ...")
-    file_list.append(savepath + "group")
+    idx = 0
     for item in dictUsr:
-        filename = ""
-        chatname = savepath + str(item)
-        if chatname.count(",", 0, len(chatname)) > 1:
-            filename = savepath + "group"
-        else:
-            filename = chatname
-            file_list.append(filename)
+        filename = savepath + str(idx)
         
         print("key: " + str(item) + ", saving " + filename)
         file_out = open(filename, "a")
+        file_out.write(str(item) + '\n')
+        file_out.write(str(len(dictUsr[item]['msgs'])) + '\n')
         for key in dictUsr[item]['segm']:
             for i in range(int(dictUsr[item]['segm'][key])):
                 file_out.write(str(key) + ' ')
         file_out.close()
+
+        idx += 1
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
