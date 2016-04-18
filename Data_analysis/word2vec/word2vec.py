@@ -8,8 +8,8 @@ for line in open(sys.argv[1]):
 	temp += jieba.cut(line, cut_all=False)
 	sentence.append(temp)
 
-model = gensim.models.Word2Vec(sentence, min_count=10, workers=4)
-model.save(sys.argv[1])
+model = gensim.models.Word2Vec(sentence, size=300, min_count=1, workers=4)
+model.save(sys.argv[2])
 
 
 print (model.similarity('男孩', '女孩'))
