@@ -5,7 +5,7 @@ In this project we aim to build an intelligent system that can chat with a perso
 
 In the short term, we aim to do some in depth analysis of how people chat with others on social media and messanger. This can allow more sophisticated design of our final system.
 
-## MileStone2 (4/19)
+## MileStone2 (4/19) [[report]](https://drive.google.com/open?id=0B3LNpShMbmkqeGxwYTl0dEhxTVk)
 In milestone2, we focus on collecting and analysising data. We release four tools:
 
 * data_crawling: Crawl data from Facebook chatroom log & DCard website.
