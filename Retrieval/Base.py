@@ -1,4 +1,4 @@
-class BaseRetrieve(Object):
+class BaseRetrieve:
     def __init__(self, dataset):
         pass
 
