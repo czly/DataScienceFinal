@@ -4,6 +4,21 @@ import lxml
 from lxml import etree
 import jieba
 
+def merge_same_sentence(tmpList):
+    sortList = sorted(tmpList,key=lambda d:d[0],reverse = False)
+    # print(sortList)
+    sortList_final = [sortList[0][:]]
+    if sortList_final[0][2] == None : sortList_final[0][2]=''
+    for i in range(1,len(sortList),1):
+        if sortList[i][1] == sortList[i-1][1]:
+            if sortList[i][2]==None: continue
+            sortList_final[-1][2] += ' '+ sortList[i][2]
+        else:
+            sortList_final.append(sortList[i][:])
+            if sortList[i][2]==None: sortList_final[-1][2] = ''
+    return sortList_final
+
+
 
 def html_to_dict(inputHtml):
     chatDict = {}
@@ -31,10 +46,12 @@ def html_to_dict(inputHtml):
                 timeStamp += ":"+str(prevMinSec[1])
                 #====================================
                 tmpList.append([timeStamp,speaker,msg])
+            tmpList = merge_same_sentence(tmpList)
             if thread.text in chatDict:
                 chatDict[thread.text]['msgs'].extend(tmpList)
             else:
                 chatDict[thread.text] = {'msgs':tmpList}
+
     return (chatDict,processCount)
 
 def jieba_word_segmentation(chatDict,FBuser):
