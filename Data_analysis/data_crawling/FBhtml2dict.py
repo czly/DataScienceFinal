@@ -4,14 +4,25 @@ import lxml
 from lxml import etree
 import jieba
 
-def main(input_path,output_path,FBuser):
-    magical_parser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
-    inputHtml = lxml.etree.parse(input_path, magical_parser)
+def merge_same_sentence(tmpList):
+    sortList = sorted(tmpList,key=lambda d:d[0],reverse = False)
+    # print(sortList)
+    sortList_final = [sortList[0][:]]
+    if sortList_final[0][2] == None : sortList_final[0][2]=''
+    for i in range(1,len(sortList),1):
+        if sortList[i][1] == sortList[i-1][1]:
+            if sortList[i][2]==None: continue
+            sortList_final[-1][2] += ' '+ sortList[i][2]
+        else:
+            sortList_final.append(sortList[i][:])
+            if sortList[i][2]==None: sortList_final[-1][2] = ''
+    return sortList_final
 
+
+
+def html_to_dict(inputHtml):
     chatDict = {}
     processCount = 0
-
-    #=====html to dict=====================================
     for threadChunk in inputHtml.xpath("/html/body/div[@class='contents']/div"):
         for thread in threadChunk.findall("div"):
             # sys.stdout.write("%d,"%processCount)
@@ -35,12 +46,15 @@ def main(input_path,output_path,FBuser):
                 timeStamp += ":"+str(prevMinSec[1])
                 #====================================
                 tmpList.append([timeStamp,speaker,msg])
+            tmpList = merge_same_sentence(tmpList)
             if thread.text in chatDict:
                 chatDict[thread.text]['msgs'].extend(tmpList)
             else:
                 chatDict[thread.text] = {'msgs':tmpList}
-    #======================================================
-    #=====jieba word segmentation==========================
+
+    return (chatDict,processCount)
+
+def jieba_word_segmentation(chatDict,FBuser):
     for threadName in chatDict.keys():
         segDict = {}
         segListAll = []
@@ -53,7 +67,6 @@ def main(input_path,output_path,FBuser):
                 msg[2] = []
             if msg[1] == FBuser:
                 segListAll.extend(msg[2])
-        #======================================
         #=====build dict=======================
         for term in segListAll:
             if term not in segDict:
@@ -62,16 +75,25 @@ def main(input_path,output_path,FBuser):
                 segDict[term] += 1
         #======================================
         chatDict[threadName]['segm'] = segDict
-    #======================================================
+
+def main(input_path,output_path,FBuser,should_segm=False):
+    magical_parser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
+    inputHtml = lxml.etree.parse(input_path, magical_parser)
+    (chatDict,processCount) = html_to_dict(inputHtml)
+    if should_segm==True:
+        jieba_word_segmentation(chatDict,FBuser)
     fout = open(output_path,"w")
     fout.write(str(chatDict))
     fout.close()
     sys.stdout.write("total processed threads:%d\n"%processCount)
 
 if __name__ == '__main__':
-    if len(sys.argv) == 4:
+    if len(sys.argv) == 4 :
         main(sys.argv[1],sys.argv[2],sys.argv[3])
+    elif len(sys.argv) == 5 :
+        main(sys.argv[1],sys.argv[2],sys.argv[3],True)
     else :
-        print('usage:\tFBhtml2dict.py <input_file> <output_file> <FB_name>')
-        print('example:FBhtml2dict.py yao_messages.htm yao_FBmsgDict_.txt 朱瑤章')
+        print('usage:\tFBhtml2dict.py <input_file> <output_file> <FB_name> -s')
+        print('example:FBhtml2dict.py yao_messages.htm yao_FBmsgDict_.txt 朱瑤章 -s')
+        print('-s : optional, segment setences')
         sys.exit(0)
