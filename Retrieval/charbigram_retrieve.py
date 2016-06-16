@@ -125,7 +125,7 @@ class CharbigramRetrieve(BaseRetrieve):
         for i in range(self.model.docvecs.count):
             sim_list[np.dot(unitvec(v1),unitvec(self.model.docvecs[i]))] = self.msg_sents[i]
         return sorted(sim_list.items(),key=lambda k:k[0],reverse=True)[:topk]
-    def get_response(self,strin,topk=10):
+    def response(self,strin,topk=10):
         '''
             input : str , sentence want to ask . ex: '今天過的如何?'
             output: list of (similarity,str) , top k sentence replied by sentences most similar to input str.
